@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Tasks>
+                                    
+    
+    
+    
+    
+    
+    
+    
+    <Task id="1">
+                                                                        
+        
+        
+        
+        
+        
+        
+        
+        <Title>Hoàn thành báo cáo JAX-RS</Title>
+                                                                        
+        
+        
+        
+        
+        
+        
+        
+        <Description>Viết phần RESTful API</Description>
+                                                                        
+        
+        
+        
+        
+        
+        
+        
+        <Completed>false</Completed>
+                                                                    
+    
+    
+    
+    
+    
+    
+    
+    </Task>
+                                    
+    
+    
+    
+    
+    
+    
+    
+    <Task id="2">
+                                                                        
+        
+        
+        
+        
+        
+        
+        
+        <Title>Ôn lý thuyết REST (Updated)</Title>
+                                                                        
+        
+        
+        
+        
+        
+        
+        
+        <Description>Chuẩn bị thi RESTful Web Service</Description>
+                                                                        
+        
+        
+        
+        
+        
+        
+        
+        <Completed>true</Completed>
+                                                                    
+    
+    
+    
+    
+    
+    
+    
+    </Task>
+                                    
+
+
+    
+    
+    
+    
+    
+    
+                    
+
+    
+
+
+    
+    
+    <Task id="4">
+                        
+        
+        <Title>Cập nhật nội dung XML</Title>
+                        
+        
+        <Description>Viết lại node trong tasks.xml</Description>
+                        
+        
+        <Completed>true</Completed>
+                    
+    
+    </Task>
+        
+
+</Tasks>

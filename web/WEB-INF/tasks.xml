@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Tasks>
+    <Task id="1">
+        <Title>Hoàn thành báo cáo JAX-RS</Title>
+        <Description>Viết phần RESTful API</Description>
+        <Completed>false</Completed>
+    </Task>
+    <Task id="2">
+        <Title>Ôn lý thuyết REST</Title>
+        <Description>Chuẩn bị kiểm tra REST</Description>
+        <Completed>false</Completed>
+    </Task>
+    <Task id="3">
+        <Title>Làm ứng dụng ToDo</Title>
+        <Description>Viết API lưu XML</Description>
+        <Completed>false</Completed>
+    </Task>
+</Tasks>
