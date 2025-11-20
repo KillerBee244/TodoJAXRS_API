@@ -1,15 +1,369 @@
 <!DOCTYPE html>
-<!--
-Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
-Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit this template
--->
-<html>
-    <head>
-        <title>TODO supply a title</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </head>
-    <body>
-        <div>TODO write content</div>
-    </body>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <title>Quản lý công việc (ToDo)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+        body {
+            background: #f3f4f6;
+            margin: 0;
+            padding: 24px;
+        }
+        .container {
+            max-width: 980px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 20px 24px 28px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+        }
+        h1 {
+            margin: 0 0 4px;
+            font-size: 24px;
+            font-weight: 700;
+            color: #111827;
+        }
+        .subtitle {
+            margin: 0 0 18px;
+            font-size: 13px;
+            color: #6b7280;
+        }
+        .task-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .filter-group {
+            display: flex;
+            gap: 8px;
+        }
+        .filter-btn {
+            padding: 6px 14px;
+            border-radius: 999px;
+            border: 1px solid transparent;
+            background: #e5e7eb;
+            font-size: 13px;
+            cursor: pointer;
+            color: #374151;
+            transition: all 0.15s ease;
+        }
+        .filter-btn:hover { background: #d1d5db; }
+        .filter-btn.active {
+            background: #2563eb;
+            color: #ffffff;
+            border-color: #1d4ed8;
+            box-shadow: 0 2px 6px rgba(37, 99, 235, 0.4);
+        }
+        .btn-add {
+            padding: 7px 16px;
+            border-radius: 999px;
+            border: none;
+            background: #10b981;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.45);
+        }
+        .btn-add:hover { background: #059669; }
+        .btn-add span { font-size: 16px; line-height: 0; }
+
+        /* Form */
+        .form-card {
+            margin-bottom: 18px;
+            padding: 14px 14px 12px;
+            background: #f9fafb;
+            border-radius: 14px;
+            border: 1px solid #e5e7eb;
+        }
+        .form-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+        .form-group { flex: 1 1 220px; min-width: 0; }
+        .form-group label { display: block; font-size: 12px; margin-bottom: 4px; color: #4b5563; }
+        .form-group input[type="text"] {
+            width: 100%; padding: 7px 9px; border-radius: 8px; border: 1px solid #d1d5db; font-size: 13px;
+        }
+        .form-actions { display: flex; justify-content: flex-end; gap: 10px; }
+        .btn-primary, .btn-secondary {
+            padding: 7px 16px; border-radius: 999px; font-size: 13px; cursor: pointer;
+        }
+        .btn-primary { background: #2563eb; color: white; border: none; }
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-secondary { background: white; border: 1px solid #d1d5db; color: #374151; }
+        .btn-secondary:hover { background: #f3f4f6; }
+
+        /* Bảng */
+        .task-table { width: 100%; border-collapse: collapse; border-radius: 12px; overflow: hidden; background: white; }
+        .task-table thead { background: #f3f4f6; }
+        .task-table th, .task-table td {
+            padding: 10px 12px; font-size: 13px; border-bottom: 1px solid #e5e7eb; text-align: left;
+        }
+        .task-table th { font-weight: 600; color: #4b5563; }
+        .task-table tbody tr:nth-child(even) { background: #fafafa; }
+        .task-table tbody tr:hover { background: #eef2ff; }
+
+        /* Gạch ngang cả tiêu đề và mô tả khi hoàn thành */
+        .task-title.done,
+        .task-description.done {
+            text-decoration: line-through;
+            color: #9ca3af !important;
+            opacity: 0.8;
+        }
+
+        .badge {
+            display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px;
+            font-size: 11px; font-weight: 600;
+        }
+        .badge-pending { background: #fef3c7; color: #92400e; }
+        .badge-done { background: #dcfce7; color: #166534; }
+
+        .btn-table {
+            padding: 5px 9px; border-radius: 7px; border: none; font-size: 11px;
+            cursor: pointer; color: white; margin-right: 6px;
+        }
+        .btn-edit { background: #f59e0b; }
+        .btn-delete { background: #ef4444; }
+        .btn-toggle { background: #3b82f6; }
+        .btn-edit:hover { background: #d97706; }
+        .btn-delete:hover { background: #dc2626; }
+        .btn-toggle:hover { background: #2563eb; }
+
+        @media (max-width: 720px) {
+            .task-header { align-items: flex-start; }
+            .btn-add { width: 100%; justify-content: center; }
+            .task-table th:nth-child(3), .task-table td:nth-child(3) { display: none; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Quản lý công việc (ToDo)</h1>
+    <p class="subtitle">API RESTful bằng JAX-RS + XML (Tomcat) – Giao diện demo quản lý ToDo.</p>
+
+    <div class="task-header">
+        <div class="filter-group">
+            <button class="filter-btn active" data-filter="all">Tất cả</button>
+            <button class="filter-btn" data-filter="pending">Chưa hoàn thành</button>
+            <button class="filter-btn" data-filter="done">Đã hoàn thành</button>
+        </div>
+        <button class="btn-add" id="btnAdd">
+            <span>＋</span> Thêm công việc
+        </button>
+    </div>
+
+    <div class="form-card" id="formCard" style="display: none;">
+        <form id="taskForm">
+            <input type="hidden" id="taskId" />
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="title">Tiêu đề</label>
+                    <input type="text" id="title" required placeholder="Ví dụ: Hoàn thành báo cáo JAX-RS">
+                </div>
+                <div class="form-group">
+                    <label for="description">Mô tả</label>
+                    <input type="text" id="description" placeholder="Mô tả ngắn gọn công việc">
+                </div>
+                <div class="form-group" style="max-width: 150px;">
+                    <label for="completed">Trạng thái</label>
+                    <div>
+                        <input type="checkbox" id="completed">
+                        <label for="completed" style="font-size:12px;">Đã hoàn thành</label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn-secondary" id="btnCancel">Hủy</button>
+                <button type="submit" class="btn-primary">Lưu</button>
+            </div>
+        </form>
+    </div>
+
+    <table class="task-table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Tiêu đề</th>
+            <th>Mô tả</th>
+            <th>Trạng thái</th>
+            <th>Hành động</th>
+        </tr>
+        </thead>
+        <tbody id="taskBody"></tbody>
+    </table>
+</div>
+
+<script>
+    const API_BASE = "http://localhost:8080/ToDoJAXRS_API/api/tasks";
+    let allTasks = [];
+    let currentFilter = "all";
+
+    async function loadTasks() {
+        const res = await fetch(API_BASE);
+        allTasks = await res.json();
+        renderTasks();
+    }
+
+    function renderTasks() {
+        const tbody = document.getElementById("taskBody");
+        tbody.innerHTML = "";
+
+        let tasksToShow = allTasks;
+        if (currentFilter === "pending") tasksToShow = allTasks.filter(t => !t.completed);
+        else if (currentFilter === "done") tasksToShow = allTasks.filter(t => t.completed);
+
+        tasksToShow.forEach(task => {
+            const tr = document.createElement("tr");
+
+            // ID
+            const tdId = document.createElement("td");
+            tdId.textContent = task.id;
+
+            // Tiêu đề (có gạch ngang nếu done)
+            const tdTitle = document.createElement("td");
+            const spanTitle = document.createElement("span");
+            spanTitle.className = "task-title" + (task.completed ? " done" : "");
+            spanTitle.textContent = task.title;
+            tdTitle.appendChild(spanTitle);
+
+            // Mô tả (có gạch ngang nếu done)
+            const tdDesc = document.createElement("td");
+            const spanDesc = document.createElement("span");
+            spanDesc.className = "task-description" + (task.completed ? " done" : "");
+            spanDesc.textContent = task.description || "";
+            tdDesc.appendChild(spanDesc);
+
+            // Trạng thái
+            const tdStatus = document.createElement("td");
+            const badge = document.createElement("span");
+            badge.className = task.completed ? "badge badge-done" : "badge badge-pending";
+            badge.textContent = task.completed ? "Hoàn thành" : "Chưa hoàn thành";
+            tdStatus.appendChild(badge);
+
+            // Hành động
+            const tdActions = document.createElement("td");
+            const btnEdit = document.createElement("button");
+            btnEdit.className = "btn-table btn-edit";
+            btnEdit.textContent = "Sửa";
+            btnEdit.onclick = () => openEdit(task);
+
+            const btnDelete = document.createElement("button");
+            btnDelete.className = "btn-table btn-delete";
+            btnDelete.textContent = "Xóa";
+            btnDelete.onclick = () => deleteTask(task.id);
+
+            const btnToggle = document.createElement("button");
+            btnToggle.className = "btn-table btn-toggle";
+            btnToggle.textContent = task.completed ? "Bỏ hoàn thành" : "Hoàn thành";
+            btnToggle.onclick = () => toggleTask(task);
+
+            tdActions.append(btnEdit, btnDelete, btnToggle);
+
+            tr.append(tdId, tdTitle, tdDesc, tdStatus, tdActions);
+            tbody.appendChild(tr);
+        });
+    }
+
+    // Filter
+    document.querySelectorAll(".filter-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            currentFilter = btn.dataset.filter;
+            renderTasks();
+        });
+    });
+
+    // Form
+    const formCard = document.getElementById("formCard");
+    const taskForm = document.getElementById("taskForm");
+    document.getElementById("btnAdd").onclick = () => openCreate();
+    document.getElementById("btnCancel").onclick = () => closeForm();
+
+    function openCreate() {
+        taskForm.reset();
+        document.getElementById("taskId").value = "";
+        formCard.style.display = "block";
+        document.getElementById("title").focus();
+    }
+
+    function openEdit(task) {
+        formCard.style.display = "block";
+        document.getElementById("taskId").value = task.id;
+        document.getElementById("title").value = task.title;
+        document.getElementById("description").value = task.description || "";
+        document.getElementById("completed").checked = task.completed;
+        document.getElementById("title").focus();
+    }
+
+    function closeForm() {
+        formCard.style.display = "none";
+        taskForm.reset();
+    }
+
+    taskForm.onsubmit = async e => {
+        e.preventDefault();
+        const id = document.getElementById("taskId").value;
+        const title = document.getElementById("title").value.trim();
+        const description = document.getElementById("description").value.trim();
+        const completed = document.getElementById("completed").checked;
+
+        if (!title) return alert("Tiêu đề không được để trống!");
+
+        const payload = { title, description, completed };
+
+        try {
+            if (id) {
+                await fetch(`${API_BASE}/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+            } else {
+                await fetch(API_BASE, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+            }
+            closeForm();
+            await loadTasks();
+        } catch (err) {
+            console.error(err);
+            alert("Lỗi khi lưu công việc!");
+        }
+    };
+
+    async function deleteTask(id) {
+        if (!confirm("Bạn có chắc muốn xóa công việc này?")) return;
+        try {
+            await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
+            await loadTasks();
+        } catch (e) {
+            alert("Lỗi khi xóa!");
+        }
+    }
+
+    async function toggleTask(task) {
+        const payload = {
+            title: task.title,
+            description: task.description,
+            completed: !task.completed
+        };
+        try {
+            await fetch(`${API_BASE}/${task.id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            await loadTasks();
+        } catch (e) {
+            alert("Lỗi khi cập nhật trạng thái!");
+        }
+    }
+
+    // Start
+    loadTasks();
+</script>
+</body>
 </html>
