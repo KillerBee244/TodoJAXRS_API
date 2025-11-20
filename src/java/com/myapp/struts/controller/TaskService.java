@@ -18,7 +18,7 @@ public class TaskService {
 
     private Document loadDocument() throws Exception {
         File file = new File(xmlPath);
-        
+
         if (!file.exists()) {
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document doc = builder.newDocument();
@@ -27,7 +27,7 @@ public class TaskService {
             saveDocument(doc);
             return doc;
         }
-        
+
         return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file);
     }
 
@@ -63,43 +63,59 @@ public class TaskService {
                 .findFirst().orElse(null);
     }
 
-    public Task addTask(Task task) {
-    try {
-        Document doc = loadDocument();
-        Element root = doc.getDocumentElement();
-
-        // Tạo id tự động
-        int newId = getAllTasks().size() + 1;
-        task.setId(newId);
-
-        // Tạo phần tử Task mới
-        Element eTask = doc.createElement("Task");
-        eTask.setAttribute("id", String.valueOf(newId));
-
-        Element eTitle = doc.createElement("Title");
-        eTitle.appendChild(doc.createTextNode(task.getTitle()));
-        eTask.appendChild(eTitle);
-
-        Element eDesc = doc.createElement("Description");
-        eDesc.appendChild(doc.createTextNode(task.getDescription()));
-        eTask.appendChild(eDesc);
-
-        Element eCompleted = doc.createElement("Completed");
-        eCompleted.appendChild(doc.createTextNode(String.valueOf(task.isCompleted())));
-        eTask.appendChild(eCompleted);
-
-        root.appendChild(eTask);
-
-        saveDocument(doc);    // Quan trọng
-
-        return task;
-
-    } catch (Exception e) {
-        e.printStackTrace();
-        return null;
+    
+    private int getNextId(Document doc) {
+        NodeList nodes = doc.getElementsByTagName("Task");
+        int maxId = 0;
+        for (int i = 0; i < nodes.getLength(); i++) {
+            Element e = (Element) nodes.item(i);
+            String idStr = e.getAttribute("id");
+            try {
+                int currentId = Integer.parseInt(idStr);
+                if (currentId > maxId) {
+                    maxId = currentId;
+                }
+            } catch (NumberFormatException ignore) {
+            }
+        }
+        return maxId + 1;
     }
-}
 
+    public Task addTask(Task task) {
+        try {
+            Document doc = loadDocument();
+            Element root = doc.getDocumentElement();
+
+            
+            int newId = getNextId(doc);
+            task.setId(newId);
+
+            Element eTask = doc.createElement("Task");
+            eTask.setAttribute("id", String.valueOf(newId));
+
+            Element eTitle = doc.createElement("Title");
+            eTitle.appendChild(doc.createTextNode(task.getTitle()));
+            eTask.appendChild(eTitle);
+
+            Element eDesc = doc.createElement("Description");
+            eDesc.appendChild(doc.createTextNode(task.getDescription()));
+            eTask.appendChild(eDesc);
+
+            Element eCompleted = doc.createElement("Completed");
+            eCompleted.appendChild(doc.createTextNode(String.valueOf(task.isCompleted())));
+            eTask.appendChild(eCompleted);
+
+            root.appendChild(eTask);
+
+            saveDocument(doc);
+
+            return task;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     public Task updateTask(int id, Task updated) {
         try {
